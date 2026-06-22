@@ -37,6 +37,20 @@ class TransformerModel(nn.Module):
         return policy, value
 
 
+def tokenize_board(boards: jnp.ndarray):
+    #boards: (B, 2, 8, 8)
+    B = boards.shape[0]
+    idx = jnp.arange(0, 8)
+
+    rows = boards.reshape(B, 2*8, 8)
+    columns = boards.transpose(0, 1, 3, 2).reshape(B, 2*8, 8)
+    right_diag = boards[:, :, idx, idx]
+    left_diag = boards[:, :, idx, idx[::-1]]
+
+    tokens = jnp.concat([rows, columns, right_diag, left_diag], axis=1)
+    return tokens
+
+
 if __name__ == '__main__':
     key = jax.random.PRNGKey(0)
     dummy_input = jnp.ones(shape=[1, 64, 128])
