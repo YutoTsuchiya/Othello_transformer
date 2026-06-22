@@ -148,6 +148,20 @@ wheels = [
 ]
 
 [[package]]
+name = "mctx"
+version = "0.0.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "chex" },
+    { name = "jax" },
+    { name = "jaxlib" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/77/03/90f4c3cd7c729422c4667fa4a6c74d8b105cae0e5fade1e7c253f11bb60c/mctx-0.0.5.tar.gz", hash = "sha256:e9f669bf4fd4c4f61837be6f9ab0ca60180945108c36bcdf5beaabc481020e21", size = 36874, upload-time = "2023-11-24T11:52:32.34Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/57/04/09a8cf47742ee18c8596ec86f0b4558548bf0ffaf0eb83506029bd9750e2/mctx-0.0.5-py3-none-any.whl", hash = "sha256:d263830a1e44a16fe2ede5ed5b37fd83626459bfccbb1ab814a6bd49bf62ffd3", size = 45285, upload-time = "2023-11-24T11:52:30.703Z" },
+]
+
+[[package]]
 name = "mdurl"
 version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -333,6 +347,8 @@ dependencies = [
     { name = "flax" },
     { name = "jax" },
     { name = "jax-metal" },
+    { name = "mctx" },
+    { name = "pgx" },
 ]
 
 [package.metadata]
@@ -340,6 +356,8 @@ requires-dist = [
     { name = "flax", specifier = "==0.10.4" },
     { name = "jax", specifier = "==0.4.34" },
     { name = "jax-metal", specifier = ">=0.1.1" },
+    { name = "mctx", specifier = ">=0.0.5" },
+    { name = "pgx", specifier = ">=2.6.0" },
 ]
 
 [[package]]
@@ -349,6 +367,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d7/f1/e7a6dd94a8d4a5626c03e4e99c87f241ba9e350cd9e6d75123f992427270/packaging-26.2.tar.gz", hash = "sha256:ff452ff5a3e828ce110190feff1178bb1f2ea2281fa2075aadb987c2fb221661", size = 228134, upload-time = "2026-04-24T20:15:23.917Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl", hash = "sha256:5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e", size = 100195, upload-time = "2026-04-24T20:15:22.081Z" },
+]
+
+[[package]]
+name = "pgx"
+version = "2.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jax" },
+    { name = "svgwrite" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e4/36/ff7a4d602ece4ae652bdd8e0bdb1ae245457bd483041f29bb21d996c9922/pgx-2.6.0.tar.gz", hash = "sha256:d9e1ec46010182fb421f3c358d278eab42ad85c5968e2ccf3c522e0cffdcbecc", size = 345973, upload-time = "2025-03-06T06:36:36.913Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1b/b7/1543c5f65dd9851032af492850141f8338b8574a0b98f448cd4bc475e2c3/pgx-2.6.0-py3-none-any.whl", hash = "sha256:35832356f091a1df16089184bc9a72a88d1c431a02f5c5499c6f2910e8db12b1", size = 436805, upload-time = "2025-03-06T06:36:34.94Z" },
 ]
 
 [[package]]
@@ -523,6 +555,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
+]
+
+[[package]]
+name = "svgwrite"
+version = "1.4.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/c1/263d4e93b543390d86d8eb4fc23d9ce8a8d6efd146f9427364109004fa9b/svgwrite-1.4.3.zip", hash = "sha256:a8fbdfd4443302a6619a7f76bc937fc683daf2628d9b737c891ec08b8ce524c3", size = 189516, upload-time = "2022-07-14T14:05:26.107Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/15/640e399579024a6875918839454025bb1d5f850bb70d96a11eabb644d11c/svgwrite-1.4.3-py3-none-any.whl", hash = "sha256:bb6b2b5450f1edbfa597d924f9ac2dd099e625562e492021d7dd614f65f8a22d", size = 67122, upload-time = "2022-07-14T14:05:24.459Z" },
 ]
 
 [[package]]
