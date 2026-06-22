@@ -1,0 +1,53 @@
+import jax
+from jax import numpy as jnp
+from flax import linen as nn
+from modules import TransformerBlock
+
+class TransformerModel(nn.Module):
+    num_heads: int
+    head_dim: int
+    num_layers: int
+    ff_dim: int = None
+    policy_size: int = 65
+
+    @nn.compact
+    def __call__(self, x):
+        B, C, E = x.shape
+        pos_emb = self.param('pos_emb', 
+                             nn.initializers.normal(0.02), 
+                             (C, E))
+        x = x + pos_emb
+
+        for _ in range(self.num_layers):
+            x = TransformerBlock(self.head_dim, 
+                                 self.num_heads,
+                                 self.ff_dim)(x)
+        
+        policy = nn.Dense(1, name='policy_affin')(x)
+        policy = policy.reshape(B, -1)
+        policy = nn.gelu(policy)
+        policy = nn.Dense(self.policy_size)(policy)
+
+        value = nn.Dense(1, name='value_affin')(x)
+        value = value.reshape(B, -1)
+        value = nn.gelu(value)
+        value = nn.Dense(1)(value)
+        value = nn.tanh(value)
+
+        return policy, value
+
+
+if __name__ == '__main__':
+    key = jax.random.PRNGKey(0)
+    dummy_input = jnp.ones(shape=[1, 64, 128])
+
+    model = TransformerModel(num_heads=4,
+                             head_dim=64,
+                             num_layers=4)
+    
+    params = model.init(key, dummy_input)
+
+    policy, value = model.apply(params, dummy_input)
+    
+    print(f"policy shape: {policy.shape}")
+    print(f"value shape: {value.shape}")
