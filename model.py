@@ -7,7 +7,7 @@ class MultiHeadAttention(nn.Module):
     head_dim: int
 
     @nn.compact
-    def __call__(self, x):
+    def __call__(self, x: jax.Array) -> jax.Array:
         # x: (B:batch, C:context, E:embedding)
         B, C, E = x.shape
         H, D = self.num_heads, self.head_dim
@@ -32,12 +32,32 @@ class MultiHeadAttention(nn.Module):
         return output
     
 
+class LayerNorm(nn.Module):
+    eps:float=1e-5
+    @nn.compact
+    def __call__(self, x: jax.Array):
+        mean = x.mean(-1, keepdims=True)
+        var = x.var(-1, keepdims=True)
+        norm = (x - mean) / jnp.sqrt(var + self.eps)
+
+        gamma = self.param('gamma', nn.initializers.ones, (x.shape[-1],))
+        beta = self.param('beta', nn.initializers.zeros, (x.shape[-1],))
+
+        return gamma * norm + beta
+
+
 if __name__ == '__main__':
-    dummy_input = jnp.ones(shape=(1, 64, 128))
+    input_shape = (1, 64, 128)
+    dummy_input = jnp.ones(shape=input_shape)
     key = jax.random.PRNGKey(0)
     
     multihead_attention = MultiHeadAttention(4, 128)
-    params = multihead_attention.init(key, dummy_input)
+    mha_params = multihead_attention.init(key, dummy_input)
+    layernorm = LayerNorm(128)
+    ln_params = layernorm.init(key, dummy_input)
 
-    out = multihead_attention.apply(params, dummy_input)
-    print(out.shape)
+    mha_out = multihead_attention.apply(mha_params, dummy_input)
+    print("MultiHead Attention OK" if input_shape==mha_out.shape else "MultiHead Attention Fail")
+
+    ln_out = layernorm.apply(ln_params, dummy_input)
+    print("LayerNorm OK" if ln_out.shape == dummy_input.shape else "LayerNorm Fail")
