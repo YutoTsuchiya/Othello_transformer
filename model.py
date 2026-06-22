@@ -30,7 +30,7 @@ class MultiHeadAttention(nn.Module):
         output = nn.Dense(E, use_bias=False)(hidden)
 
         return output
-    
+
 
 class LayerNorm(nn.Module):
     eps:float=1e-5
@@ -57,7 +57,19 @@ class FFN(nn.Module):
         x = nn.gelu(x)
         out = nn.Dense(x_dim)(x)
         return out
-    
+
+
+class TransformerBlock(nn.Module):
+    head_dim: int
+    num_heads: int
+    ff_dim: int=None
+
+    @nn.compact
+    def __call__(self, x):
+        x = x + MultiHeadAttention(self.num_heads, self.head_dim)(LayerNorm()(x))
+        x = x + FFN(self.ff_dim)(LayerNorm()(x))
+        return x
+
 
 if __name__ == '__main__':
     input_shape = (1, 64, 128)
@@ -73,6 +85,9 @@ if __name__ == '__main__':
     ffn = FFN(128)
     ffn_params = ffn.init(key, dummy_input)
 
+    transformer_block = TransformerBlock(128, 4)
+    block_params = transformer_block.init(key, dummy_input)
+
     mha_out = multihead_attention.apply(mha_params, dummy_input)
     print("MultiHead Attention OK" if input_shape==mha_out.shape else "MultiHead Attention Fail")
 
@@ -81,3 +96,6 @@ if __name__ == '__main__':
 
     ffn_out = ffn.apply(ffn_params, dummy_input)
     print("FFN OK" if ffn_out.shape == dummy_input.shape else "FFN Fail")
+
+    block_out = transformer_block.apply(block_params, dummy_input)
+    print("Transformer Block OK" if block_out.shape == dummy_input.shape else "Transformer Block Fail")
