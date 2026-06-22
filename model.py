@@ -79,7 +79,7 @@ if __name__ == '__main__':
     multihead_attention = MultiHeadAttention(4, 128)
     mha_params = multihead_attention.init(key, dummy_input)
 
-    layernorm = LayerNorm(128)
+    layernorm = LayerNorm()
     ln_params = layernorm.init(key, dummy_input)
 
     ffn = FFN(128)
