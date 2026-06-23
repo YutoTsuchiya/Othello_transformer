@@ -38,7 +38,8 @@ class TransformerModel(nn.Module):
 
 
 def tokenize_board(boards: jnp.ndarray):
-    #boards: (B, 2, 8, 8)
+    #boards: (B, 8, 8, 2)
+    boards = boards.transpose(0, 3, 1, 2)
     B = boards.shape[0]
     idx = jnp.arange(0, 8)
 
