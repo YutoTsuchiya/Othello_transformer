@@ -29,6 +29,7 @@ save_every = 5000
 devices = jax.local_devices()
 num_devices = len(devices)
 per_device_batch = batch_size // num_devices
+per_device_eval = num_eval_games // num_devices
 
 # === 初期化 ===
 key = jax.random.PRNGKey(seed)
