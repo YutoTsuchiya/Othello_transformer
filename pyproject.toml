@@ -10,4 +10,5 @@ dependencies = [
     "jax-metal>=0.1.1",
     "mctx>=0.0.5",
     "pgx>=2.6.0",
+    "wandb>=0.28.0",
 ]

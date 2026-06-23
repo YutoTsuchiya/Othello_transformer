@@ -7,8 +7,13 @@ from jax import numpy as jnp
 import pgx
 import optax
 import wandb
+from save_ckpt import save_ckpt
 
 from model import TransformerModel, tokenize_board
+
+import wandb
+wandb.login(key="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")
+
 
 # === ハイパーパラメータ ===
 seed = 2323
@@ -19,6 +24,7 @@ learning_rate = 1e-3
 num_iterations = 100000
 eval_interval = 100
 num_eval_games = 4096
+save_every = 5000
 
 # === デバイス ===
 devices = jax.local_devices()
@@ -314,6 +320,10 @@ for i in range(num_iterations):
             f"iter {i:4d} | loss: {pl + vl:.4f} "
             f"| win: {win_rate:.2%} | elo: {elo:.0f}"
         )
+    
+    # save
+    if i % save_every == 0:
+        save_ckpt(params, opt_state, i)
 
     wandb.log(log)
 
