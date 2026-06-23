@@ -2,7 +2,6 @@ from typing import NamedTuple
 from functools import partial
 import mctx
 import jax
-jax.config.update("jax_platform_name", "cpu")
 from jax import numpy as jnp
 import pgx
 import optax
