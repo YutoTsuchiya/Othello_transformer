@@ -28,7 +28,7 @@ per_device_eval = num_eval_games // num_devices
 
 # === 初期化 ===
 key = jax.random.PRNGKey(seed)
-model = TransformerModel(num_heads=2, head_dim=128, num_layers=4)
+model = TransformerModel(num_heads=2, head_dim=128, num_layers=6, emb_dim=128)
 env = pgx.make('othello')
 optimizer = optax.adam(learning_rate)
 baseline = pgx.make_baseline_model("othello_v0")

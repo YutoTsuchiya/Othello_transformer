@@ -9,9 +9,11 @@ class TransformerModel(nn.Module):
     num_layers: int
     ff_dim: int = None
     policy_size: int = 65
+    emb_dim:int = 256
 
     @nn.compact
     def __call__(self, x):
+        x = nn.Dense(self.emb_dim)(x)
         B, C, E = x.shape
         pos_emb = self.param('pos_emb', 
                              nn.initializers.normal(0.02), 
