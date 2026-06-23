@@ -16,7 +16,7 @@ wandb.login(key="wandb_v1_TJbzCRLrRT603qBoJvH4UIudj5e_LfJGllMBcOuJNnHdqp9HyOZwxZ
 
 # === ハイパーパラメータ ===
 seed = 2323
-batch_size = 2048
+batch_size = 1024
 max_steps = 64
 num_simulations = 32
 learning_rate = 1e-3
@@ -28,8 +28,7 @@ save_every = 5000
 # === デバイス ===
 devices = jax.local_devices()
 num_devices = len(devices)
-per_device_batch = 4096
-per_device_eval = num_eval_games // num_devices
+per_device_batch = batch_size // num_devices
 
 # === 初期化 ===
 key = jax.random.PRNGKey(seed)
