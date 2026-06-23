@@ -16,7 +16,7 @@ wandb.login(key="wandb_v1_TJbzCRLrRT603qBoJvH4UIudj5e_LfJGllMBcOuJNnHdqp9HyOZwxZ
 
 # === ハイパーパラメータ ===
 seed = 2323
-batch_size = 1024
+batch_size = 512
 max_steps = 64
 num_simulations = 32
 learning_rate = 1e-3
