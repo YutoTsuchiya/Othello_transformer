@@ -14,21 +14,21 @@ from model import TransformerModel, tokenize_board
 seed = 2323
 batch_size = 2048
 max_steps = 64
-num_simulations = 128
+num_simulations = 32
 learning_rate = 1e-3
-num_iterations = 400
-eval_interval = 10
-num_eval_games = 256
+num_iterations = 100000
+eval_interval = 100
+num_eval_games = 4096
 
 # === デバイス ===
 devices = jax.local_devices()
 num_devices = len(devices)
-per_device_batch = batch_size // num_devices
+per_device_batch = 4096
 per_device_eval = num_eval_games // num_devices
 
 # === 初期化 ===
 key = jax.random.PRNGKey(seed)
-model = TransformerModel(num_heads=4, head_dim=128, num_layers=6)
+model = TransformerModel(num_heads=2, head_dim=128, num_layers=4)
 env = pgx.make('othello')
 optimizer = optax.adam(learning_rate)
 baseline = pgx.make_baseline_model("othello_v0")
@@ -179,19 +179,62 @@ def evaluate(params, rng_key):
     keys = jax.random.split(rng_key, per_device_eval)
     state = jax.vmap(env.init)(keys)
 
+    def recurrent_fn_eval(params, rng_key, action, embedding):
+        state = embedding
+        next_state = jax.vmap(env.step)(state, action)
+
+        tokens = tokenize_board(next_state.observation)
+        logits, values = model.apply(params, tokens)
+        logits = logits - jnp.max(logits, axis=-1, keepdims=True)
+        logits = jnp.where(next_state.legal_action_mask, logits, jnp.finfo(logits.dtype).min)
+
+        reward = next_state.rewards[jnp.arange(per_device_eval), state.current_player]
+        value = jnp.where(next_state.terminated, 0.0, values.reshape(-1))
+        discount = jnp.where(next_state.terminated, 0.0, -1.0 * jnp.ones(per_device_eval))
+
+        output = mctx.RecurrentFnOutput(
+            reward=reward,
+            discount=discount,
+            prior_logits=logits,
+            value=value,
+        )
+        return output, next_state
+
     def body_fn(val):
         key, state, R = val
+
+        # 自分のターン: MCTSで行動選択
         tokens = tokenize_board(state.observation)
-        my_logits, _ = model.apply(params, tokens)
+        my_logits, my_value = model.apply(params, tokens)
+        my_logits = my_logits - jnp.max(my_logits, axis=-1, keepdims=True)
         my_logits = jnp.where(state.legal_action_mask, my_logits, jnp.finfo(my_logits.dtype).min)
 
-        opp_logits, _ = baseline(state.observation)
-
-        is_my_turn = (state.current_player == my_player).reshape(-1, 1)
-        logits = jnp.where(is_my_turn, my_logits, opp_logits)
+        root = mctx.RootFnOutput(
+            prior_logits=my_logits,
+            value=my_value.reshape(-1),
+            embedding=state,
+        )
 
         key, subkey = jax.random.split(key)
-        action = jax.random.categorical(subkey, logits, axis=-1)
+        policy_output = mctx.gumbel_muzero_policy(
+            params=params,
+            rng_key=subkey,
+            root=root,
+            recurrent_fn=recurrent_fn_eval,
+            num_simulations=num_simulations,
+            max_num_considered_actions=8,
+        )
+        my_action = policy_output.action
+
+        # 相手のターン: baselineでサンプリング
+        opp_logits, _ = baseline(state.observation)
+        key, subkey = jax.random.split(key)
+        opp_action = jax.random.categorical(subkey, opp_logits, axis=-1)
+
+        # 手番に応じて行動を選択
+        is_my_turn = state.current_player == my_player
+        action = jnp.where(is_my_turn, my_action, opp_action)
+
         state = jax.vmap(env.step)(state, action)
         R = R + state.rewards[jnp.arange(per_device_eval), my_player]
         return (key, state, R)
@@ -202,6 +245,7 @@ def evaluate(params, rng_key):
         (rng_key, state, jnp.zeros(per_device_eval)),
     )
     return R
+
 
 
 def compute_elo(win_rate):
